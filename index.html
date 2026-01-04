@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dipu Badatya | Creative Engineer</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500&family=Syne:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Manrope', 'sans-serif'],
+                        display: ['Syne', 'sans-serif'],
+                    },
+                    colors: {
+                        paper: '#Fdfdfd',
+                        ink: '#111111',
+                        graphite: '#333333',
+                    },
+                    fontSize: {
+                        'mega': 'clamp(4rem, 12vw, 14rem)',
+                        'display': 'clamp(2.5rem, 6vw, 5rem)',
+                    },
+                    height: {
+                        'screen-dvh': '100dvh',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+    <style>
+        body {
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Preloader Styles */
+        #preloader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #111;
+            color: #fff;
+        }
+
+        /* Reveal Utilities */
+        .reveal-hero {
+            transform: translateY(100%);
+            will-change: transform;
+        }
+
+        .parallax-img-wrap {
+            overflow: hidden;
+        }
+
+        .parallax-img {
+            transform: scale(1.15);
+            will-change: transform;
+        }
+
+        /* Marquee */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            display: flex;
+        }
+
+        .marquee-content {
+            display: flex;
+            animation: scroll 20s linear infinite;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        /* Contact Modal Transition */
+        .modal-overlay {
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(100%);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        /* Hover Line Effect */
+        .hover-line {
+            position: relative;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .hover-line::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 1px;
+            bottom: 0;
+            left: 0;
+            background-color: currentColor;
+            transform-origin: bottom right;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .hover-line:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+
+        /* Magnetic Button Base */
+        .magnetic-btn {
+            display: inline-block;
+            transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-paper text-ink transition-colors duration-500 dark:bg-ink dark:text-paper selection:bg-ink selection:text-paper dark:selection:bg-white dark:selection:text-black overflow-x-hidden">
+
+    <div id="preloader">
+        <div class="text-center px-4">
+            <p id="quote" class="font-display text-xl md:text-3xl font-light italic opacity-0 transform translate-y-4">
+                "Simplicity is the ultimate sophistication."
+            </p>
+            <p id="author" class="mt-4 text-sm uppercase tracking-widest opacity-0 transform translate-y-4">— Leonardo
+                da Vinci</p>
+        </div>
+    </div>
+
+    <header
+        class="fixed top-0 w-full z-50 px-6 py-6 flex justify-between items-center mix-blend-difference text-white opacity-0 -translate-y-4"
+        id="main-header">
+        <a href="#" class="font-display font-bold text-xl tracking-tight z-50">DIPU BADATYA ©</a>
+
+        <div class="flex items-center gap-6 z-50">
+            <button id="theme-toggle" class="magnetic-btn hover:opacity-70 transition-opacity">
+                <span class="uppercase text-xs font-bold tracking-widest" id="theme-text">Dark</span>
+            </button>
+            <button id="contact-btn"
+                class="magnetic-btn uppercase text-xs font-bold tracking-widest border border-white/30 px-4 py-2 rounded-full hover:bg-white hover:text-black transition-colors duration-300">
+                Let's Talk
+            </button>
+        </div>
+    </header>
+
+    <div id="contact-modal"
+        class="modal-overlay fixed inset-0 z-[60] bg-ink/90 backdrop-blur-sm flex items-end md:items-center justify-center p-4">
+        <button id="close-modal"
+            class="absolute top-8 right-8 text-white hover:rotate-90 transition-transform duration-300">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+
+        <div
+            class="modal-content w-full max-w-2xl bg-paper dark:bg-zinc-900 text-ink dark:text-white rounded-3xl p-8 md:p-16 shadow-2xl relative">
+            <h2 class="font-display text-4xl md:text-6xl font-bold mb-8">Get in Touch</h2>
+            <div class="space-y-8">
+                <div>
+                    <p class="text-xs uppercase tracking-widest opacity-50 mb-2">Email</p>
+                    <a href="mailto:dipubadatya@gmail.com"
+                        class="hover-line text-2xl md:text-4xl font-display font-semibold transition-opacity">dipubadatya@gmail.com</a>
+                </div>
+                <div>
+                    <p class="text-xs uppercase tracking-widest opacity-50 mb-2">Phone</p>
+                    <a href="tel:+910000000000"
+                        class="hover-line text-2xl md:text-4xl font-display font-semibold transition-opacity">+91 7205577687 </a>
+                     
+                </div>
+                <div class="pt-8 flex gap-6 border-t border-ink/10 dark:border-white/10">
+                    <a href="https://linkedin.com/in/dipu-badatya" target="_blank"
+                        class="flex items-center gap-2 hover:text-blue-500 transition-colors">LinkedIn <i
+                            data-lucide="arrow-up-right" class="w-4 h-4"></i></a>
+                    <a href="https://github.com/dipubadatya" target="_blank"
+                        class="flex items-center gap-2 hover:text-purple-500 transition-colors">GitHub <i
+                            data-lucide="arrow-up-right" class="w-4 h-4"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main>
+
+        <section class="min-h-screen flex flex-col justify-center px-4 md:px-12 pt-24 pb-12 overflow-hidden relative">
+            <div class="w-full border-b border-ink/10 dark:border-paper/10 pb-4 mb-8 flex justify-between items-end">
+                <span class="text-xs uppercase tracking-widest opacity-60">India — 2026</span>
+                <span class="text-xs uppercase tracking-widest opacity-60">Full Stack Eng.</span>
+            </div>
+
+            <h1
+                class="font-display font-extrabold leading-[0.85] uppercase text-mega mix-blend-difference z-10 relative">
+                <div class="overflow-hidden"><span class="block reveal-hero">Creative</span></div>
+                <div class="overflow-hidden flex justify-between items-center">
+                    <span class="block reveal-hero text-right w-full">Developer</span>
+                </div>
+            </h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mt-12 md:mt-16 items-start relative z-10">
+                <!-- <div class="md:col-span-5 self-center">
+                    <p class="text-xl md:text-2xl leading-relaxed opacity-80 reveal-text">
+                        I craft digital products that blend <strong>aesthetic precision</strong> with <strong>robust engineering</strong>. 
+                        Bridging the gap between the MERN stack and creative motion.
+                    </p>
+                </div> -->
+                <div class="md:col-span-5 self-center">
+                    <p class="text-xl md:text-2xl leading-relaxed opacity-80 reveal-text">
+                        A fresher full-stack developer exploring backend engineering with
+                        <strong>Node.js, Express, MongoDB</strong>,
+                        and real-time communication through <strong>Socket.IO</strong>.
+                    </p>
+                </div>
+
+
+                <div class="md:col-span-4 md:col-start-9 reveal-text">
+                    <div class="parallax-img-wrap rounded-2xl overflow-hidden aspect-[3/4] shadow-2xl relative group">
+                        <img src="/img2.jpg" alt="Dipu Badatya"
+                            class="parallax-img w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-out">
+
+                        <div
+                            class="absolute bottom-4 right-4 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                            Dipu Badatya
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="px-4 md:px-12 py-24 md:py-32 border-t border-ink/10 dark:border-paper/10">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+                <div class="md:col-span-4">
+                    <h2 class="font-display text-4xl font-bold uppercase sticky top-32">The Context</h2>
+                </div>
+                <!-- <div class="md:col-span-8 space-y-12 about-content">
+                    <p class="text-2xl md:text-4xl leading-tight font-display font-medium reveal-paragraph">
+                        Based in India, I bridge the gap between design and code. My approach is holistic—I don't just
+                        write functions; I build systems.
+                    </p>
+                    <div class="grid md:grid-cols-2 gap-8 text-lg opacity-80 leading-relaxed">
+                        <p class="reveal-paragraph">
+                            Starting with a curiosity for how pixels move on a screen, I dove deep into the MERN stack.
+                            I believe that a website shouldn't just work; it should feel right. Seamless transitions,
+                            intuitive layouts, and accessible code are my non-negotiables.
+                        </p>
+                        <p class="reveal-paragraph">
+                            Currently, I am exploring the intersection of web technologies and hardware (ESP32/Arduino),
+                            pushing the boundaries of what a "Full Stack" developer can actually do.
+                        </p>
+                    </div>
+                </div> -->
+                <div class="md:col-span-8 space-y-12 about-content">
+                    <p class="text-2xl md:text-4xl leading-tight font-display font-medium reveal-paragraph">
+                        Based in India, I’m a fresher full-stack developer with a strong interest in backend development
+                        and understanding how different parts of an application work together.
+                    </p>
+
+                    <div class="grid md:grid-cols-2 gap-8 text-lg opacity-80 leading-relaxed">
+                        <p class="reveal-paragraph">
+                            I began by learning how the web works behind the scenes, which led me to the MERN stack.
+                            I enjoy building backend logic with Node.js, Express, and MongoDB, focusing on clarity and
+                            real-world use.
+                        </p>
+
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section
+            class="px-4 md:px-12 py-24 bg-ink text-paper dark:bg-paper dark:text-ink transition-colors duration-500">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="font-display text-display font-bold mb-16 text-center">CORE STACK</h2>
+
+                <div
+                    class="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/20 dark:bg-black/20 border border-white/20 dark:border-black/20">
+                    <div
+                        class="tech-item bg-ink dark:bg-paper p-8 flex flex-col items-center justify-center gap-4 hover:bg-zinc-900 dark:hover:bg-zinc-100 transition-colors group">
+                        <i data-lucide="file-code-2"
+                            class="w-8 h-8 group-hover:scale-110 transition-transform duration-300"></i>
+                        <span class="font-display font-bold text-lg">JavaScript</span>
+                    </div>
+                    <div
+                        class="tech-item bg-ink dark:bg-paper p-8 flex flex-col items-center justify-center gap-4 hover:bg-zinc-900 dark:hover:bg-zinc-100 transition-colors group">
+                        <i data-lucide="atom"
+                            class="w-8 h-8 group-hover:scale-110 transition-transform duration-300"></i>
+                        <span class="font-display font-bold text-lg">React.js</span>
+                    </div>
+                    <div
+                        class="tech-item bg-ink dark:bg-paper p-8 flex flex-col items-center justify-center gap-4 hover:bg-zinc-900 dark:hover:bg-zinc-100 transition-colors group">
+                        <i data-lucide="server"
+                            class="w-8 h-8 group-hover:scale-110 transition-transform duration-300"></i>
+                        <span class="font-display font-bold text-lg">Node.js</span>
+                    </div>
+                    <div
+                        class="tech-item bg-ink dark:bg-paper p-8 flex flex-col items-center justify-center gap-4 hover:bg-zinc-900 dark:hover:bg-zinc-100 transition-colors group">
+                        <i data-lucide="database"
+                            class="w-8 h-8 group-hover:scale-110 transition-transform duration-300"></i>
+                        <span class="font-display font-bold text-lg">MongoDB</span>
+                    </div>
+                    <div
+                        class="tech-item bg-ink dark:bg-paper p-8 flex flex-col items-center justify-center gap-4 hover:bg-zinc-900 dark:hover:bg-zinc-100 transition-colors group">
+                        <i data-lucide="wind"
+                            class="w-8 h-8 group-hover:scale-110 transition-transform duration-300"></i>
+                        <span class="font-display font-bold text-lg">Tailwind</span>
+                    </div>
+                    <div
+                        class="tech-item bg-ink dark:bg-paper p-8 flex flex-col items-center justify-center gap-4 hover:bg-zinc-900 dark:hover:bg-zinc-100 transition-colors group">
+                        <i data-lucide="move"
+                            class="w-8 h-8 group-hover:scale-110 transition-transform duration-300"></i>
+                        <span class="font-display font-bold text-lg">GSAP</span>
+                    </div>
+                    <div
+                        class="tech-item bg-ink dark:bg-paper p-8 flex flex-col items-center justify-center gap-4 hover:bg-zinc-900 dark:hover:bg-zinc-100 transition-colors group">
+                        <i data-lucide="git-branch"
+                            class="w-8 h-8 group-hover:scale-110 transition-transform duration-300"></i>
+                        <span class="font-display font-bold text-lg">Git</span>
+                    </div>
+                    <div
+                        class="tech-item bg-ink dark:bg-paper p-8 flex flex-col items-center justify-center gap-4 hover:bg-zinc-900 dark:hover:bg-zinc-100 transition-colors group">
+                        <i data-lucide="wifi"
+                            class="w-8 h-8 group-hover:scale-110 transition-transform duration-300"></i>
+                        <span class="font-display font-bold text-lg">Socket.IO</span>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- <div class="py-12 border-y border-ink/10 dark:border-paper/10">
+            <div class="marquee-container opacity-40">
+                <div class="marquee-content font-display text-4xl md:text-6xl font-bold uppercase gap-12 px-6">
+                    <span>Performance</span> <span>•</span>
+                    <span>Accessibility</span> <span>•</span>
+                    <span>Interaction</span> <span>•</span>
+                    <span>Design</span> <span>•</span>
+                    <span>Engineering</span> <span>•</span>
+                </div>
+                <div class="marquee-content font-display text-4xl md:text-6xl font-bold uppercase gap-12 px-6"
+                    aria-hidden="true">
+                    <span>Performance</span> <span>•</span>
+                    <span>Accessibility</span> <span>•</span>
+                    <span>Interaction</span> <span>•</span>
+                    <span>Design</span> <span>•</span>
+                    <span>Engineering</span> <span>•</span>
+                </div>
+            </div>
+        </div> -->
+        <div class="py-12 border-y border-ink/10 dark:border-paper/10">
+            <div class="marquee-container opacity-40">
+                <div class="marquee-content font-display text-4xl md:text-6xl font-bold uppercase gap-12 px-6">
+                    <span>Learning Backend</span> <span>•</span>
+                    <span>APIs</span> <span>•</span>
+                    <span>Databases</span> <span>•</span>
+                    <span>Real-Time</span> <span>•</span>
+                    <span>Practice</span> <span>•</span>
+                </div>
+
+                <div class="marquee-content font-display text-4xl md:text-6xl font-bold uppercase gap-12 px-6"
+                    aria-hidden="true">
+                    <span>Learning Backend</span> <span>•</span>
+                    <span>APIs</span> <span>•</span>
+                    <span>Databases</span> <span>•</span>
+                    <span>Real-Time</span> <span>•</span>
+                    <span>Practice</span> <span>•</span>
+                </div>
+            </div>
+        </div>
+
+
+        <section id="work" class="px-4 md:px-12 py-32">
+            <h2 class="font-display text-display font-bold mb-24">SELECTED WORKS</h2>
+
+            <div class="project-row grid grid-cols-1 md:grid-cols-12 gap-8 mb-32">
+                <div class="md:col-span-4 md:sticky md:top-32 h-fit z-10 project-info">
+                    <span
+                        class="text-xs font-bold border border-ink/20 dark:border-paper/20 px-3 py-1 rounded-full mb-4 inline-block">01</span>
+                    <h3 class="font-display text-5xl md:text-6xl font-bold mb-6 leading-none">Diary<br>Writing</h3>
+                    <p class="opacity-70 mb-8 max-w-sm">A web app where users can write and share their thoughts, and
+                        interact with others through likes and comments.</p>
+                    <ul class="text-sm font-medium space-y-2 opacity-60 mb-8">
+                        <li>Node.js / Express</li>
+                        <li>Socket.io</li>
+                        <li>EJS Templating</li>
+                    </ul>
+                    <!-- <a href="#" class="hover-line inline-flex items-center gap-2 pb-1 transition-opacity">View Case <i
+                            data-lucide="arrow-up-right" class="w-4 h-4"></i></a> -->
+                    <!-- Action Buttons -->
+                    <div class="flex items-center gap-6">
+                        <a href="https://diary-web-app-nine.vercel.app/stories" target="_blank"
+                            class="hover-line inline-flex items-center gap-2 pb-1 transition-opacity">
+                            Live Project
+                            <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                        </a>
+
+                        <a href="https://github.com/dipubadatya/DIARY-WEB-APP/" target="_blank"
+                            class="hover-line inline-flex items-center gap-2 pb-1 transition-opacity opacity-70 hover:opacity-100">
+                            GitHub
+                            <i data-lucide="github" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="md:col-span-8 relative">
+                    <div class="parallax-img-wrap rounded-xl overflow-hidden aspect-[16/9]">
+                        <img src="https://i.pinimg.com/736x/a5/c6/1d/a5c61d676da72a40bc8bfbc7004cb6cf.jpg"
+                            class="parallax-img w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-row grid grid-cols-1 md:grid-cols-12 gap-8 mb-32">
+                <div class="md:col-span-4 md:sticky md:top-32 h-fit z-10 project-info">
+                    <span
+                        class="text-xs font-bold border border-ink/20 dark:border-paper/20 px-3 py-1 rounded-full mb-4 inline-block">02</span>
+                    <h3 class="font-display text-5xl md:text-6xl font-bold mb-6 leading-none">BusGo<br>Tracker</h3>
+                    <p class="opacity-70 mb-8 max-w-sm">A real-time college bus tracking project designed to help
+                        students and faculty track buses and avoid unnecessary waiting..</p>
+                    <ul class="text-sm font-medium space-y-2 opacity-60 mb-8">
+                        <li>JavaScript</li>
+                        <li>Leaflet Maps API</li>
+                        <li>Mongodb / Socket.io</li>
+                    </ul>
+                    <!-- <a href="#" class="hover-line inline-flex items-center gap-2 pb-1 transition-opacity">View Case <i
+                            data-lucide="arrow-up-right" class="w-4 h-4"></i></a> -->
+                    <!-- Action Buttons -->
+                    <div class="flex items-center gap-6">
+                        <a href="https://advance-bus-tracking-deployment.onrender.com/" target="_blank"
+                            class="hover-line inline-flex items-center gap-2 pb-1 transition-opacity">
+                            Live Project
+                            <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                        </a>
+
+                        <a href="https://github.com/dipubadatya/advance_bus_tracking_deployment" target="_blank"
+                            class="hover-line inline-flex items-center gap-2 pb-1 transition-opacity opacity-70 hover:opacity-100">
+                            GitHub
+                            <i data-lucide="github" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="md:col-span-8 relative">
+                    <div class="parallax-img-wrap rounded-xl overflow-hidden aspect-[16/9]">
+                        <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=2069&auto=format&fit=crop"
+                            class="parallax-img w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-row grid grid-cols-1 md:grid-cols-12 gap-8 mb-16">
+                <div class="md:col-span-4 md:sticky md:top-32 h-fit z-10 project-info">
+                    <span
+                        class="text-xs font-bold border border-ink/20 dark:border-paper/20 px-3 py-1 rounded-full mb-4 inline-block">03</span>
+                    <h3 class="font-display text-5xl md:text-6xl font-bold mb-6 leading-none">Job<br>Track</h3>
+                    <p class="opacity-70 mb-8 max-w-sm">Track your job applications, interviews, and offers in one place so you always know where you stand.</p>
+                    <ul class="text-sm font-medium space-y-2 opacity-60 mb-8">
+                        <li>JavaScript</li>
+                        <li>Tailwind CSS</li>
+                        <li>Firebase</li>
+                    </ul>
+                    <!-- <a href="#" class="hover-line inline-flex items-center gap-2 pb-1 transition-opacity">View Case <i
+                            data-lucide="arrow-up-right" class="w-4 h-4"></i></a> -->
+                    <!-- Action Buttons -->
+                    <div class="flex items-center gap-6">
+                        <a href="https://trackyo.netlify.app/" target="_blank"
+                            class="hover-line inline-flex items-center gap-2 pb-1 transition-opacity">
+                            Live Project
+                            <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                        </a>
+
+                        <a href="https://github.com/pstarz7/trackyo-jobtracker-newUI" target="_blank"
+                            class="hover-line inline-flex items-center gap-2 pb-1 transition-opacity opacity-70 hover:opacity-100">
+                            GitHub
+                            <i data-lucide="github" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="md:col-span-8 relative">
+                    <div class="parallax-img-wrap rounded-xl overflow-hidden aspect-[16/9]">
+                        <img src="https://i.pinimg.com/736x/3e/c2/77/3ec277d01642ec75eb7d9d0b63af0ee1.jpg"
+                            class="parallax-img w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center mt-24">
+                <a href="https://github.com/dipubadatya?tab=repositories" target="_blank"
+                    class="group relative inline-flex items-center justify-center px-12 py-4 overflow-hidden font-display font-bold text-white transition-all duration-300 bg-ink dark:bg-paper dark:text-ink rounded-full hover:w-full hover:px-0">
+                    <span class="relative z-10 flex items-center gap-2">More Projects <i data-lucide="plus"
+                            class="w-4 h-4"></i></span>
+                </a>
+            </div>
+        </section>
+
+        <footer class="px-4 md:px-12 py-20 bg-ink text-paper dark:bg-paper dark:text-ink relative overflow-hidden">
+            <div class="max-w-7xl mx-auto text-center relative z-10">
+                <p class="uppercase text-sm tracking-widest opacity-50 mb-8">Ready to Collaborate?</p>
+
+                <button id="footer-contact-btn"
+                    class="font-display font-black text-display md:text-[8rem] leading-none hover:opacity-50 transition-opacity block mb-12 w-full text-center hover:scale-105 duration-500 ease-out">
+                    LET'S TALK
+                </button>
+
+                <div
+                    class="grid md:grid-cols-3 gap-8 border-t border-white/20 dark:border-black/20 pt-12 text-left md:text-center footer-content">
+                    <div class="flex flex-col gap-2 footer-item">
+                        <span class="text-xs uppercase opacity-50">Email</span>
+                        <a href="mailto:dipubadatya@gmail.com"
+                            class="hover-line text-lg font-medium">dipubadatya113@gmail.com</a>
+                    </div>
+                    <div class="flex flex-col gap-2 footer-item">
+                        <span class="text-xs uppercase opacity-50">Phone</span>
+                        <a href="tel:+910000000000" class="hover-line text-lg font-medium">+91 7205577687</a>
+                    </div>
+                    <div class="flex flex-col gap-2 footer-item">
+                        <span class="text-xs uppercase opacity-50">Socials</span>
+                        <div class="flex gap-4 justify-start md:justify-center">
+                            <a href="https://linkedin.com/in/dipu-badatya"
+                                class="hover-line hover:text-white dark:hover:text-black transition-colors">LinkedIn</a>
+                            <a href="https://github.com/dipubadatya"
+                                class="hover-line hover:text-white dark:hover:text-black transition-colors">GitHub</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 text-sm opacity-40">
+                    <p>© 2026 Dipu Badatya. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // --- PRELOADER & ENTRANCE SEQUENCE ---
+        window.addEventListener('load', () => {
+            const tl = gsap.timeline();
+            tl.to('#quote', { opacity: 1, y: 0, duration: 1, ease: 'power2.out' })
+                .to('#author', { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, "-=0.5")
+                .to('#preloader p', { opacity: 0, y: -20, duration: 0.8, delay: 1 })
+                .to('#preloader', {
+                    yPercent: -100,
+                    duration: 1.2,
+                    ease: 'power4.inOut',
+                    onComplete: startHeroAnimations
+                });
+        });
+
+        function startHeroAnimations() {
+            // Header Slide Down
+            gsap.to('#main-header', { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' });
+
+            // Hero Text Reveal
+            gsap.to('.reveal-hero', {
+                y: 0,
+                duration: 1.5,
+                stagger: 0.1,
+                ease: "power4.out"
+            });
+            // Body Text Reveal
+            gsap.to('.reveal-text', {
+                opacity: 1,
+                duration: 1.5,
+                delay: 0.5
+            });
+        }
+
+        // --- SCROLL ANIMATIONS (ScrollTrigger) ---
+        gsap.registerPlugin(ScrollTrigger);
+
+        // 1. About Text Stagger
+        const paragraphs = document.querySelectorAll('.reveal-paragraph');
+        paragraphs.forEach(p => {
+            gsap.from(p, {
+                scrollTrigger: {
+                    trigger: p,
+                    start: "top 85%",
+                },
+                y: 30,
+                opacity: 0,
+                duration: 1,
+                ease: "power3.out"
+            });
+        });
+
+        // 2. Tech Stack Grid Stagger
+        gsap.from('.tech-item', {
+            scrollTrigger: {
+                trigger: '.tech-item',
+                start: "top 80%",
+            },
+            y: 40,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "back.out(1.7)"
+        });
+
+        // 3. Project Rows Reveal
+        document.querySelectorAll('.project-row').forEach(row => {
+            gsap.from(row, {
+                scrollTrigger: {
+                    trigger: row,
+                    start: "top 90%",
+                },
+                opacity: 0,
+                y: 50,
+                duration: 1,
+                ease: "power3.out"
+            });
+        });
+
+        // 4. Parallax Images
+        document.querySelectorAll('.parallax-img').forEach(img => {
+            gsap.to(img, {
+                scrollTrigger: {
+                    trigger: img.parentElement,
+                    start: "top bottom",
+                    end: "bottom top",
+                    scrub: true
+                },
+                y: -50,
+                ease: "none"
+            });
+        });
+
+        // 5. Footer Stagger
+        gsap.from('.footer-item', {
+            scrollTrigger: {
+                trigger: 'footer',
+                start: "top 70%",
+            },
+            y: 20,
+            opacity: 0,
+            duration: 1,
+            stagger: 0.1,
+            ease: "power2.out"
+        });
+
+        // --- MAGNETIC BUTTON EFFECT ---
+        const magneticBtns = document.querySelectorAll('.magnetic-btn');
+        magneticBtns.forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+
+                // Move button slightly towards mouse
+                gsap.to(btn, {
+                    x: x * 0.3,
+                    y: y * 0.3,
+                    duration: 0.3,
+                    ease: "power2.out"
+                });
+            });
+
+            btn.addEventListener('mouseleave', () => {
+                // Snap back
+                gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
+            });
+        });
+
+        // --- CONTACT MODAL ---
+        const modal = document.getElementById('contact-modal');
+        const openBtns = [document.getElementById('contact-btn'), document.getElementById('footer-contact-btn')];
+        const closeBtn = document.getElementById('close-modal');
+        const toggleModal = () => modal.classList.toggle('active');
+
+        openBtns.forEach(btn => btn.addEventListener('click', toggleModal));
+        closeBtn.addEventListener('click', toggleModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) toggleModal(); });
+
+        // --- THEME TOGGLE ---
+        const themeBtn = document.getElementById('theme-toggle');
+        const themeText = document.getElementById('theme-text');
+        const html = document.documentElement;
+        themeBtn.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            themeText.innerText = html.classList.contains('dark') ? 'Light' : 'Dark';
+        });
+
+        // --- SMOOTH SCROLL (Lenis) ---
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            smooth: true
+        });
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+    </script>
+</body>
+
+</html>
